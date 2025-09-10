@@ -4,14 +4,14 @@
     "slug": "uber-clone",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/splash.png",
     "scheme": "uberclone",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
+    "backgroundColor": "#2f80ed",
     "splash": {
       "image": "./assets/images/splash.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#2F80ED"
+      "resizeMode": "contain"
     },
     "ios": {
       "supportsTablet": true
@@ -36,7 +36,7 @@
           "image": "./assets/images/splash.png",
           "imageWidth": 200,
           "resizeMode": "contain",
-          "backgroundColor": "#ffffff"
+          "backgroundColor": "#2f80ed"
         }
       ]
     ],

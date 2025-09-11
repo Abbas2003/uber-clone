@@ -8,10 +8,13 @@ import { Link, router } from "expo-router";
 import OAuth from "@/components/OAuth";
 import { useSignUp } from "@clerk/clerk-expo";
 import ReactNativeModal from "react-native-modal";
+import { fetchAPI } from "@/lib/fetch";
 
 
 const SignUp = () => {
     const { isLoaded, signUp, setActive } = useSignUp()
+    const [showSuccessModal, setShowSuccessModal] = useState(false)
+
     const [form, setForm] = useState({
         name: '',
         email: '',
@@ -22,13 +25,11 @@ const SignUp = () => {
         error: '',
         state: 'default'
     });
-    const [showSuccessModal, setShowSuccessModal] = useState(false)
 
   // Handle submission of sign-up form
   const onSignUpPress = async () => {
     if (!isLoaded) return
 
-    // Start sign-up process using email and password provided
     try {
       await signUp.create({
         emailAddress: form.email,
@@ -37,14 +38,11 @@ const SignUp = () => {
 
       // Send user an email with verification code
       await signUp.prepareEmailAddressVerification({ strategy: 'email_code' })
-
-      // Set 'pendingVerification' to true to display second form
-      // and capture OTP code
       setVerification({
         ...verification,
         state: "pending"
       })
-    } catch (err) {
+    } catch (err: any) {
       console.error(JSON.stringify(err, null, 2))
       Alert.alert("Error", err.errors[0].longMessage)
     }
@@ -62,6 +60,14 @@ const SignUp = () => {
 
       if (signUpAttempt.status === 'complete') {
         // TODO: Create a user in db
+        await fetchAPI("/(api)/user", {
+            method: "POST",
+            body: JSON.stringify({
+                name: form.name,
+                email: form.email,
+                clerkId: signUpAttempt.createdUserId
+            })
+        })
         await setActive({ session: signUpAttempt.createdSessionId })
         setVerification({ ...verification, state: "success" })
     } else {

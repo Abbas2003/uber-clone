@@ -2,16 +2,15 @@ import CustomButton from "@/components/CustomButton";
 import "../../global.css";
 import InputField from "@/components/InputField";
 import { icons, images } from "@/constants";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { Alert, Image, ScrollView, Text, View } from "react-native";
-import { Link, useRouter } from "expo-router";
+import { Link, router } from "expo-router";
 import OAuth from "@/components/OAuth";
 import { useSignIn } from "@clerk/clerk-expo";
 
 
 const SignIn = () => {
-    const router = useRouter();
-    const { signIn, setActive, isLoaded } = useSignIn()
+    const { signIn, setActive, isLoaded } = useSignIn();
     const [form, setForm] = useState({
         email: '',
         password: '',
@@ -19,33 +18,27 @@ const SignIn = () => {
     
 
     // Handle the submission of the sign-in form
-  const onSignInPress = async () => {
+  const onSignInPress = useCallback(async () => {
     if (!isLoaded) return
 
-    // Start the sign-in process using the email and password provided
     try {
       const signInAttempt = await signIn.create({
         identifier: form.email,
         password: form.password,
       })
 
-      // If sign-in process is complete, set the created session as active
-      // and redirect the user
       if (signInAttempt.status === 'complete') {
         await setActive({ session: signInAttempt.createdSessionId })
         router.replace('/(root)/(tabs)/home')
       } else {
-        // If the status isn't complete, check why. User might need to
-        // complete further steps.
         console.error(JSON.stringify(signInAttempt, null, 2))
+        Alert.alert("Error", "Log in failed. Please try again.");
       }
-    } catch (err) {
-      // See https://clerk.com/docs/custom-flows/error-handling
-      // for more info on error handling
+    } catch (err: any) {
       console.error(JSON.stringify(err, null, 2))
       Alert.alert("Error", err.errors[0].longMessage)
     }
-  }
+  }, [form, isLoaded])
 
     return(
         <ScrollView className="flex-1 bg-white">
